@@ -10,14 +10,13 @@ function App() {
 
 
  const handleSubmit = ( e ) => {
-
   e.preventDefault();
   const newMessage = {
     body: message,
     from: 'Me'
   }
   setMessages([...messages, newMessage])
-  socket.emit('message', newMessage.body); //le paso ''message'' pq asi lo tengo en el backend
+  socket.emit('message', message); //le paso ''message'' pq asi lo tengo en el backend
  };
 
 
@@ -35,22 +34,31 @@ function App() {
   return (
     <div className='h-screen bg-zinc-800 text-white flex items-center justify-center'>
       <form onSubmit={handleSubmit} className='bg-zinc-900 p-10'>
-        <input type="text" placeholder='Write your message...' onChange={(e) => setMessage(e.target.value)}  />
+        <h1 className='text-2xl font-bold my-2'>React Chat</h1>
+        <input 
+          className='border-2 border-zinc-500 p-2 w-full text-black'
+          type="text" 
+          placeholder='Write your message...' 
+          onChange={(e) => setMessage(e.target.value)}  
+        />
 
         <button>
           Send
         </button>
+        <ul>
+          {
+            messages.map((message, index) => (
+              
+              <li key={index} className={
+              `my-2 p-2 table text-sm rounded-md ${message.from === 'Me' ? 'bg-sky-700 ml-auto' : 'bg-black'} `
+                }
+                >
+              {message.from === socket.id ? 'Me' : message.from}  {message.body}
+              </li>
+            ))
+          }
+        </ul>
       </form>
-      <ul>
-        {
-          messages.map((message, index) => (
-            
-            <li key={index}>
-             {message.from === socket.id ? 'Me' : message.from}  {message.body}
-            </li>
-          ))
-        }
-      </ul>
     </div>
   )
 };
