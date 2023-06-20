@@ -1,17 +1,45 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 const socket = io('/');
 
 function App() {
 
-  useEffect(() => {
+  const [ message, setMessage ] = useState('');
+  const [ messages, setMessages ] = useState([]);
 
-  }, [])
+ const handleSubmit = ( e ) => {
+  e.preventDefault();
+  socket.emit('message', message)  //le paso ''message'' pq asi lo tengo en el backend
+  
+ };
+
+
+ useEffect(() => {
+  socket.on('message', message => {
+    console.log(message);
+    setMessages([...messages, message])
+  })
+ }, [])
 
 
   return (
-    <div>Hello World</div>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder='Write your message...' onChange={(e) => setMessage(e.target.value)}  />
+
+        <button>
+          Send
+        </button>
+      </form>
+      <ul>
+        {
+          messages.map((message, index) => (
+            <li key={index}>{message}</li>
+          ))
+        }
+      </ul>
+    </div>
   )
 };
 

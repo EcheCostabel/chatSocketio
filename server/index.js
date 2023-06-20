@@ -8,6 +8,11 @@ const io = new Server(server);
 
 io.on('connection', socket => {
     console.log('Client connected')
+
+    socket.on('message', (data) => { //este message escucha al front
+        socket.broadcast.emit('message', data)
+        console.log( data)
+    })
 })
 
 server.listen(4000);
