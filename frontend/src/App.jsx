@@ -10,17 +10,21 @@ function App() {
 
  const handleSubmit = ( e ) => {
   e.preventDefault();
-  socket.emit('message', message)  //le paso ''message'' pq asi lo tengo en el backend
-  
+  setMessages([...messages, message])
+  socket.emit('message', message); //le paso ''message'' pq asi lo tengo en el backend
  };
 
 
  useEffect(() => {
-  socket.on('message', message => {
-    console.log(message);
-    setMessages([...messages, message])
-  })
- }, [])
+  socket.on('message',receiveMessage)
+
+  return () => {
+    socket.off('message', receiveMessage)
+   }
+ }, []);
+
+
+ const receiveMessage = message => setMessages(state => [...state, message])
 
 
   return (
