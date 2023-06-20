@@ -8,23 +8,28 @@ function App() {
   const [ message, setMessage ] = useState('');
   const [ messages, setMessages ] = useState([]);
 
+
  const handleSubmit = ( e ) => {
+
   e.preventDefault();
-  setMessages([...messages, message])
-  socket.emit('message', message); //le paso ''message'' pq asi lo tengo en el backend
+  const newMessage = {
+    body: message,
+    from: 'Me'
+  }
+  setMessages([...messages, newMessage])
+  socket.emit('message', newMessage.body); //le paso ''message'' pq asi lo tengo en el backend
  };
 
 
  useEffect(() => {
   socket.on('message',receiveMessage)
-
   return () => {
     socket.off('message', receiveMessage)
    }
  }, []);
 
 
- const receiveMessage = message => setMessages(state => [...state, message])
+ const receiveMessage = (message) => setMessages((state) => [...state, message])
 
 
   return (
@@ -39,7 +44,10 @@ function App() {
       <ul>
         {
           messages.map((message, index) => (
-            <li key={index}>{message}</li>
+            
+            <li key={index}>
+             {message.from === socket.id ? 'Me' : message.from}  {message.body}
+            </li>
           ))
         }
       </ul>

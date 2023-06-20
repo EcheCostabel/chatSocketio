@@ -7,13 +7,17 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 io.on('connection', socket => {
-    console.log('Client connected')
 
-    socket.on('message', (data) => { //este message escucha al front
-        socket.broadcast.emit('message', data)
-        console.log( data)
-    })
-})
+
+    socket.on('message', (body) => {
+        
+        const message = {
+            body,
+            from: socket.id
+        };
+        io.emit('message', message); // Usa io.emit en lugar de socket.broadcast.emit
+    });
+});
 
 server.listen(4000);
 console.log('Server on port', 4000);
