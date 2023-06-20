@@ -33,8 +33,8 @@ function App() {
 
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className='h-screen bg-zinc-800 text-white flex items-center justify-center'>
+      <form onSubmit={handleSubmit} className='bg-zinc-900 p-10'>
         <input type="text" placeholder='Write your message...' onChange={(e) => setMessage(e.target.value)}  />
 
         <button>
