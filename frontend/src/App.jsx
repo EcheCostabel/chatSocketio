@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 
 const socket = io('/');
 
 function App() {
+
+  const messageContainerRef = useRef(null);
 
   const [ isConnected, setIsConnected ] = useState(false);
   const [ newMessage, setNewMessage ] = useState('');
@@ -18,12 +20,24 @@ function App() {
   }); 
  };
 
+ const scrollToBottom = () => {
+  if (messageContainerRef.current) {
+    setTimeout(() => {
+      const scrollHeight = messageContainerRef.current.scrollHeight;
+      const clientHeight = messageContainerRef.current.clientHeight;
+      const maxScrollTop = scrollHeight - clientHeight;
+      messageContainerRef.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+    }, 10); // Ajusta el tiempo según sea necesario
+  }
+};
+
 
 useEffect(() => {
   socket.on('connect', () => setIsConnected(true));
 
   socket.on('message', (data) => {
-    setMessages(messages => [...messages, data]); 
+    setMessages(messages => [...messages, data]);
+    scrollToBottom(); 
   
   })
 
@@ -36,31 +50,34 @@ useEffect(() => {
 
   return (
     <div className='h-screen bg-zinc-800 text-white flex items-center justify-center'>
-      <form onSubmit={handleSubmit} className='bg-zinc-900 p-10'>
-        <h1 className='text-2xl font-bold my-2'>React Chat</h1>
+      <form onSubmit={handleSubmit} className='bg-sky-700 p-10  sm:w-1/2 h-3/4 rounded-2xl'>
+        <h1 className='text-2xl font-bold my-2'>Chat</h1>
         <input 
-          className='border-2 border-zinc-500 p-2 w-full text-black'
+          className='border-2 border-zinc-500 p-2 w-full text-black rounded-md'
           type="text" 
-          placeholder='Write your message...' 
+          placeholder='Escribi tu mensaje...' 
           onChange={(e) => setNewMessage(e.target.value)}  
         />
 
         <button>
-          Send
+          Enviar
         </button>
-        <ul>
-          {
-            messages.map((message, index) => (
-              
-              <li key={index} className={
-              `my-2 p-2 table text-sm rounded-md ${message.user === 'Me' ? 'bg-sky-700 ml-auto' : 'bg-black'} `
-                }
-                >
-              {message.from === socket.id ? 'Me' : message.user}  {message.message}
-              </li>
-            ))
-          }
-        </ul>
+        <div ref={messageContainerRef} className='overflow-y-auto h-3/4 scrollbar-thin py-2'>
+          <ul>
+            {
+              messages.map((message, index) => (
+                
+                <li key={index} className={
+                `my-2 p-2 table text-sm rounded-md max-w-1/3 ${message.user === socket.id ? 'bg-sky-900 ml-auto' : 'bg-black'} `
+                  }
+                  >
+                {message.message}
+                </li>
+              ))
+            }
+          </ul>
+
+        </div>
       </form>
     </div>
   )
