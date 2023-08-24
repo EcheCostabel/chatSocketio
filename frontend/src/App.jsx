@@ -5,30 +5,33 @@ const socket = io('/');
 
 function App() {
 
-  const [ message, setMessage ] = useState('');
+  const [ isConnected, setIsConnected ] = useState(false);
+  const [ newMessage, setNewMessage ] = useState('');
   const [ messages, setMessages ] = useState([]);
 
 
  const handleSubmit = ( e ) => {
   e.preventDefault();
-  const newMessage = {
-    body: message,
-    from: 'Me'
-  }
-  setMessages([...messages, newMessage])
-  socket.emit('message', message); //le paso ''message'' pq asi lo tengo en el backend
+  socket.emit('message', { //le paso ''message'' pq asi lo tengo en el backend
+    user: socket.id,
+    message: newMessage
+  }); 
  };
 
 
- useEffect(() => {
-  socket.on('message',receiveMessage)
+useEffect(() => {
+  socket.on('connect', () => setIsConnected(true));
+
+  socket.on('message', (data) => {
+    setMessages(messages => [...messages, data]); 
+  
+  })
+
   return () => {
-    socket.off('message', receiveMessage)
-   }
- }, []);
-
-
- const receiveMessage = (message) => setMessages((state) => [...state, message])
+    socket.off('connect');
+    socket.off('message');
+    }
+  },[])
 
 
   return (
@@ -39,7 +42,7 @@ function App() {
           className='border-2 border-zinc-500 p-2 w-full text-black'
           type="text" 
           placeholder='Write your message...' 
-          onChange={(e) => setMessage(e.target.value)}  
+          onChange={(e) => setNewMessage(e.target.value)}  
         />
 
         <button>
@@ -50,10 +53,10 @@ function App() {
             messages.map((message, index) => (
               
               <li key={index} className={
-              `my-2 p-2 table text-sm rounded-md ${message.from === 'Me' ? 'bg-sky-700 ml-auto' : 'bg-black'} `
+              `my-2 p-2 table text-sm rounded-md ${message.user === 'Me' ? 'bg-sky-700 ml-auto' : 'bg-black'} `
                 }
                 >
-              {message.from === socket.id ? 'Me' : message.from}  {message.body}
+              {message.from === socket.id ? 'Me' : message.user}  {message.message}
               </li>
             ))
           }

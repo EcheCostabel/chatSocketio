@@ -10,12 +10,9 @@ io.on('connection', socket => {
 
 
     socket.on('message', (body) => {
-        
-        const message = {
-            body,
-            from: socket.id
-        };
-        io.emit('message', message); // Usa io.emit en lugar de socket.broadcast.emit
+
+
+        io.emit('message', body); 
     });
 });
 
